@@ -199,3 +199,11 @@ resource "azurerm_dns_a_record" "dns-nginx-sliver" {
   target_resource_id  = azurerm_public_ip.pip-nginx-sliver.id
 
 }
+
+output "storage_account_url" {
+  value = azurerm_storage_account.sa-nginx-sliver.primary_blob_endpoint
+}
+
+output "public_ip" {
+  value = azurerm_public_ip.pip-nginx-sliver.id
+}
