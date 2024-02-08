@@ -125,7 +125,14 @@ write_files:
         auth_basic           "restricted access";
         auth_basic_user_file /etc/nginx/.htpasswd; 
 
-
+      }
+      location /content {
+        proxy_pass https://${azurerm_storage_account.sa-nginx-sliver.primary_blob_endpoint}/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
       }
     }
   path: /etc/nginx/sites-available/${var.subdomain}.${var.domain}
@@ -185,6 +192,27 @@ resource "azurerm_storage_container" "content" {
   storage_account_name  = azurerm_storage_account.sa-nginx-sliver.name
   container_access_type = "container"
 }
+resource "azurerm_cdn_profile" "sliver" {
+  name                = "SliverCDNProfile"
+  resource_group_name = azurerm_resource_group.c2-resources.name
+  location            = azurerm_resource_group.c2-resources.location
+  sku                 = "Standard_Verizon"
+}
+
+resource "azurerm_cdn_endpoint" "sliver" {
+  name                = "contentendpoint"
+  profile_name        = azurerm_cdn_profile.sliver.name
+  resource_group_name = azurerm_resource_group.c2-resources.name
+  location            = azurerm_resource_group.c2-resources.location
+  origin_host_header  = var.domain
+  origin_host_name    = azurerm_storage_account.sa-nginx-sliver.primary_blob_endpoint
+  content_types_to_compress = ["text/plain", "text/html"]
+  
+  # Optional: Define additional settings as needed
+  tags = {
+    environment = "production"
+  }
+}
 
 resource "azurerm_dns_zone" "dns_zone" {
   name                = var.domain
@@ -202,6 +230,10 @@ resource "azurerm_dns_a_record" "dns-nginx-sliver" {
 
 output "storage_account_url" {
   value = azurerm_storage_account.sa-nginx-sliver.primary_blob_endpoint
+}
+
+output "cdn_endpoint" {
+  value = "https://${azurerm_cdn_endpoint.cdn_profile.name}.azureedge.net/${azurerm_storage_container.content.name}"
 }
 
 output "public_ip" {
