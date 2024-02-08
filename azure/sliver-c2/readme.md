@@ -29,6 +29,5 @@ To delete everything:
 
 
 # TODO:
-1. get the certs added from lets encrypt on build
-2. make sliver so it runs as a service on a loopback as part of cloud-init (edit docker file or add command args?)
+1. install and run sliver with certificate
 3. mount storage account to vm
