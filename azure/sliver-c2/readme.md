@@ -7,7 +7,7 @@ cd azure-silver
 terraform init
 export PUBLIC_IP=$(curl -s ifconfig.me)
 terraform plan -var="my_ip=$PUBLIC_IP"
-terraform apply -var="my_ip=$PUBLIC_IP"
+terraform apply -var="my_ip=$PUBLIC_IP" && terraform output
 ```
 
 Then get the public IP of the VM and login:
