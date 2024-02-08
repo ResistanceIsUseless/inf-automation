@@ -197,3 +197,11 @@ resource "azurerm_dns_a_record" "dns-nginx-monitoring" {
   target_resource_id  = azurerm_public_ip.pip-nginx-monitoring.id
 
 }
+
+output "storage_account_url" {
+  value = azurerm_storage_account.sa-nginx-monitoring.primary_blob_endpoint
+}
+
+output "public_ip" {
+  value = azurerm_public_ip.pip-nginx-monitoring.id
+}
